@@ -7,7 +7,7 @@ import Level2 from "./Level2";
 
 export default class Level1 extends GameLevel {
     
-    // HOMEWORK 5 - TODO
+    // --HOMEWORK 5 - TODO
     /**
      * Add your balloon pop sound here and use it throughout the code
      */
@@ -20,12 +20,14 @@ export default class Level1 extends GameLevel {
         this.load.audio("jump", "hw5_assets/sounds/jump.wav");
         this.load.audio("switch", "hw5_assets/sounds/switch.wav");
         this.load.audio("player_death", "hw5_assets/sounds/player_death.wav");
-        // HOMEWORK 5 - TODO
+        this.load.audio("ballon_pop", "hw5_assets/sounds/ballon_pop.wav");
+        // --HOMEWORK 5 - TODO
         // You'll want to change this to your level music
-        this.load.audio("level_music", "hw5_assets/music/menu.mp3");
+        this.load.audio("level_music", "hw5_assets/music/sound5.wav");
+        
     }
 
-    // HOMEWORK 5 - TODO
+    // --HOMEWORK 5 - TODO
     /**
      * Decide which resource to keep and which to cull.
      * 
@@ -39,6 +41,17 @@ export default class Level1 extends GameLevel {
      */
     unloadScene(){
         // Keep resources - this is up to you
+        this.resourceManager.keepSpritesheet("player");
+        this.resourceManager.keepSpritesheet("red");
+        this.resourceManager.keepSpritesheet("blue");
+        this.resourceManager.keepAudio("jump");
+        this.resourceManager.keepAudio("switch");
+        this.resourceManager.keepAudio("player_death");
+        this.resourceManager.keepAudio("ballon_pop");
+        this.resourceManager.keepAudio("level_music");
+        //this.resourceManager.keepTilemap("level1");
+        //this.resourceManager.unloadAllResources;
+        
     }
 
     startScene(): void {

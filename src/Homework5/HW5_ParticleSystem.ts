@@ -3,7 +3,7 @@ import ParticleSystem from "../Wolfie2D/Rendering/Animations/ParticleSystem";
 import { EaseFunctionType } from "../Wolfie2D/Utils/EaseFunctions";
 import RandUtils from "../Wolfie2D/Utils/RandUtils";
 
-// HOMEWORK 5 - TODO
+// --HOMEWORK 5 - TODO
 /**
  * This particle system extends the base ParticleSystem class, and I reccommend you look at some of the implementation, 
  * at least for the default setParticleAnimation()
@@ -20,6 +20,25 @@ import RandUtils from "../Wolfie2D/Utils/RandUtils";
 export default class HW5_ParticleSystem extends ParticleSystem {
 
     setParticleAnimation(particle: Particle) {
+        
         super.setParticleAnimation(particle);
+        particle.tweens.add("active", {
+            startDelay: 0,
+            duration: this.lifetime,
+            effects: [
+                {
+                    property: "alpha",
+                    start: 1,
+                    end: 0,
+                    ease: EaseFunctionType.IN_OUT_QUAD
+                },
+                
+            ],
+            
+        });
+        particle.vel.vec[1] = particle.vel.vec[1]+this.particleMass*150;
+        //console.log(particle.vel.vec[1]);
+        
+
     }
 }

@@ -1,6 +1,7 @@
 import Vec2 from "../../Wolfie2D/DataTypes/Vec2";
 import GameEvent from "../../Wolfie2D/Events/GameEvent";
 import AnimatedSprite from "../../Wolfie2D/Nodes/Sprites/AnimatedSprite";
+import PlayerController from "../Player/PlayerController";
 import { HW5_Events } from "../hw5_enums";
 import BalloonState from "./BalloonState";
 
@@ -22,9 +23,28 @@ import BalloonState from "./BalloonState";
  */
 export default class ZeroGravity extends BalloonState {
 	onEnter(): void {
+        this.gravity = 0;
+		//console.log(this.parent.velocity);
+
+		//(<AnimatedSprite>this.owner).animation.play("IDLE", true);
+	}
+
+	update(deltaT: number): void {
+		super.update(deltaT);
+
+		//this.gravity = 0;
+		this.parent.velocity.y = 0
+        this.parent.velocity.x = this.parent.direction.x * this.parent.speed *2;
+		
+		//console.log();
+		
+		
+		this.owner.move(this.parent.velocity.scaled(deltaT));
+
 	}
 
 	onExit(): Record<string, any> {
+		(<AnimatedSprite>this.owner).animation.stop();
 		return {};
 	}
 }

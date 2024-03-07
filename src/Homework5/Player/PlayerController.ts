@@ -22,22 +22,22 @@ export enum PlayerType {
 export enum PlayerStates {
     IDLE = "idle",
     WALK = "walk",
-	RUN = "run",
-	JUMP = "jump",
+    RUN = "run",
+    JUMP = "jump",
     FALL = "fall",
-	PREVIOUS = "previous"
+    PREVIOUS = "previous"
 }
 
 export default class PlayerController extends StateMachineAI {
     protected owner: GameNode;
     velocity: Vec2 = Vec2.ZERO;
-	speed: number = 200;
-	MIN_SPEED: number = 200;
+    speed: number = 200;
+    MIN_SPEED: number = 200;
     MAX_SPEED: number = 300;
     tilemap: OrthogonalTilemap;
     suitColor: HW5_Color;
 
-    // HOMEWORK 5 - TODO
+    // --HOMEWORK 5 - TODO
     /**
      * Implement a death animation for the player using tweens. The animation rotate the player around itself multiple times
      * over the tween duration, as well as fading out the alpha value of the player. The tween should also make use of the
@@ -47,7 +47,7 @@ export default class PlayerController extends StateMachineAI {
      * 
      * Look at incPlayerLife() in GameLevel to see where this animation would be called.
      */
-    initializeAI(owner: GameNode, options: Record<string, any>){
+    initializeAI(owner: GameNode, options: Record<string, any>) {
         this.owner = owner;
 
         this.initializePlatformer();
@@ -65,10 +65,31 @@ export default class PlayerController extends StateMachineAI {
                 {
                     property: "rotation",
                     start: 0,
-                    end: 2*Math.PI,
+                    end: 2 * Math.PI,
                     ease: EaseFunctionType.IN_OUT_QUAD
                 }
             ]
+        });
+        owner.tweens.add("death", {
+            startDelay: 0,
+            duration: 1000,
+            onEnd: HW5_Events.PLAYER_KILLED,
+            effects: [
+                {
+                    property: "rotation",
+                    start: 0,
+                    end: 10,
+                    ease: EaseFunctionType.IN_OUT_QUAD
+                },
+                {
+                    property: "alpha",
+                    start: 1,
+                    end: 0,
+                    ease: EaseFunctionType.IN_OUT_QUAD
+
+                },
+            ],
+            //onEnd: HW5_Events.PLAYER_KILLED
         });
 
     }
@@ -77,30 +98,30 @@ export default class PlayerController extends StateMachineAI {
         this.speed = 400;
 
         let idle = new Idle(this, this.owner);
-		this.addState(PlayerStates.IDLE, idle);
-		let walk = new Walk(this, this.owner);
-		this.addState(PlayerStates.WALK, walk);
-		let run = new Run(this, this.owner);
-		this.addState(PlayerStates.RUN, run);
-		let jump = new Jump(this, this.owner);
+        this.addState(PlayerStates.IDLE, idle);
+        let walk = new Walk(this, this.owner);
+        this.addState(PlayerStates.WALK, walk);
+        let run = new Run(this, this.owner);
+        this.addState(PlayerStates.RUN, run);
+        let jump = new Jump(this, this.owner);
         this.addState(PlayerStates.JUMP, jump);
         let fall = new Fall(this, this.owner);
         this.addState(PlayerStates.FALL, fall);
-        
+
         this.initialize(PlayerStates.IDLE);
     }
 
     changeState(stateName: string): void {
         // If we jump or fall, push the state so we can go back to our current state later
         // unless we're going from jump to fall or something
-        if((stateName === PlayerStates.JUMP || stateName === PlayerStates.FALL) && !(this.stack.peek() instanceof InAir)){
+        if ((stateName === PlayerStates.JUMP || stateName === PlayerStates.FALL) && !(this.stack.peek() instanceof InAir)) {
             this.stack.push(this.stateMap.get(stateName));
         }
 
         super.changeState(stateName);
     }
 
-    // HOMEWORK 5 - TODO
+    // --HOMEWORK 5 - TODO
     /**
      * We want to detect when our player is moving over one of the switches in the world, and along with the sound
      * and label changes, we also visually want to change the tile.
@@ -112,18 +133,36 @@ export default class PlayerController extends StateMachineAI {
      * 
      */
     update(deltaT: number): void {
-		super.update(deltaT);
+        super.update(deltaT);
 
-		if(this.currentState instanceof Jump){
-			Debug.log("playerstate", "Player State: Jump");
-		} else if (this.currentState instanceof Walk){
-			Debug.log("playerstate", "Player State: Walk");
-		} else if (this.currentState instanceof Run){
-			Debug.log("playerstate", "Player State: Run");
-		} else if (this.currentState instanceof Idle){
-			Debug.log("playerstate", "Player State: Idle");
-		} else if(this.currentState instanceof Fall){
+
+        //console.log(Math.floor(this.currentState.owner.position.x/this.tilemap.getTileSize().x));
+        //console.log(Math.floor(this.currentState.owner.position.y/this.tilemap.getTileSize().y));
+        let rc = new Vec2(Math.floor(this.currentState.owner.position.x / this.tilemap.getTileSize().x), Math.floor(this.currentState.owner.position.y / this.tilemap.getTileSize().y));
+        //console.log(rc);
+        //console.log(((rc.y+1)*this.tilemap.numCols+rc.x));
+        //console.log(this.tilemap.data[((rc.y + 1) * this.tilemap.numCols + rc.x)]);
+        if(this.currentState.owner.collidedWithTilemap == true){
+            if(this.tilemap.data[((rc.y + 1) * this.tilemap.numCols + rc.x)] == 8){
+                //console.log("On the switch");
+                this.emitter.fireEvent(HW5_Events.PLAYER_HIT_SWITCH);
+                this.tilemap.data[((rc.y + 1) * this.tilemap.numCols + rc.x)] = 9;
+            }
+        }
+
+        if (this.currentState instanceof Jump) {
+            Debug.log("playerstate", "Player State: Jump");
+        } else if (this.currentState instanceof Walk) {
+            Debug.log("playerstate", "Player State: Walk");
+
+
+
+        } else if (this.currentState instanceof Run) {
+            Debug.log("playerstate", "Player State: Run");
+        } else if (this.currentState instanceof Idle) {
+            Debug.log("playerstate", "Player State: Idle");
+        } else if (this.currentState instanceof Fall) {
             Debug.log("playerstate", "Player State: Fall");
         }
-	}
+    }
 }
